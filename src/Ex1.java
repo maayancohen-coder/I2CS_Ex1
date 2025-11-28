@@ -100,23 +100,31 @@ public class Ex1 {
 	 * @return true iff p1 represents the same polynomial function as p2.
 	 */
 	public static boolean equals(double[] p1, double[] p2) {
-        if (p1 == null && p2 == null) return true;
-        if (p1 == null || p2 == null) return false;
+        if (p1 == null && p2 == null){
+            return true;
+        }
+        if (p1 == null || p2 == null){
+            return false;
+        }
 
-        // מסירים אפסים זנביים (רק כאלה שקטנים מ-EPS)
-        p1 = normalize(p1);
-        p2 = normalize(p2);
+        double temp = 0;
+        boolean result = true;
+        for (double i = 0; i < p1.length; i++) {
+            temp = f(p1,i) - f(p2,i);
+            if (Math.abs(temp) > EPS) {
+                result = false;
 
-        // אם עדיין האורכים שונים — לא אותו פולינום
-        if (p1.length != p2.length) return false;
+            }
+        }
+        return result;
+        /**if (p1.length != p2.length) return false;
 
-        // השוואת מקדמים לפי EPS
         for (int i = 0; i < p1.length; i++) {
             if (Math.abs(p1[i] - p2[i]) > EPS) {
                 return false;
             }
         }
-        return true;
+        return true;*/
     }
 
 	/** 
@@ -124,6 +132,7 @@ public class Ex1 {
 	 * For example the array {2,0,3.1,-1.2} will be presented as the following String  "-1.2x^3 +3.1x^2 +2.0"
 	 * @param poly the polynomial function represented as an array of doubles
 	 * @return String representing the polynomial function:
+     * לתקן - הפונקציות צריכות פשוט לתת את אותם ערכים בקירוב של אפסילון כדי להיות שוות
 	 */
 	public static String poly(double[] poly) {
 		String ans = "";
@@ -163,9 +172,20 @@ public class Ex1 {
 	 * @param x2 - maximal value of the range
 	 * @param eps - epsilon (positive small value (often 10^-3, or 10^-6).
 	 * @return an x value (x1<=x<=x2) for which |p1(x) - p2(x)| < eps.
+     * fix!!!!
 	 */
 	public static double sameValue(double[] p1, double[] p2, double x1, double x2, double eps) {
-		double ans = x1;
+        double ans = -1;
+        double[] t = {-1};
+        double[] h = add(p2, mul(p1, t));
+        for (double xi = x1; xi <= x2; xi++) {
+            if (f(h, xi) <=EPS) {
+                return ans = x1;
+            }
+        }
+        return ans;
+    }
+		/**double ans = x1;
         double left = x1;
         double right = x2;
         double yLeft = f(p1,left) - f(p2,left);
@@ -186,7 +206,7 @@ public class Ex1 {
             ans = (left + right) / 2.0;
         }
 		return ans;
-	}
+	}*/
 	/**
 	 * Given a polynomial function (p), a range [x1,x2] and an integer with the number (n) of sample points.
 	 * This function computes an approximation of the length of the function between f(x1) and f(x2) 
@@ -234,8 +254,17 @@ public class Ex1 {
 	 */
 	public static double area(double[] p1,double[]p2, double x1, double x2, int numberOfTrapezoid) {
 		double ans = 0;
+        if (numberOfTrapezoid<=0){
+            return ans;
+        }
+        if (x2<x1){
+            double temp = x1;
+            x1 = x2;
+            x2 = temp;
+        }
         double h = (x2 - x1)/numberOfTrapezoid;
         double gx1,gx2;
+
         for (double xi=x1 ; xi<=x2 ; xi+= h){
             gx1  = Math.abs(f(p2,xi) - f(p1,xi));
             gx2 = Math.abs(f(p1,xi+h) - f(p2,xi+h));
@@ -290,7 +319,7 @@ public class Ex1 {
         if (p == null) {
             return 0;
         }
-        String s = p.replace(" ", ""); // מוחקים רווחים
+        String s = p.replace(" ", "");
         if (s.length() == 0) {
             return 0;
         }
