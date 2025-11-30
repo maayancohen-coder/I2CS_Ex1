@@ -1,15 +1,32 @@
 /**
- * Introduction to Computer Science 2026, Ariel University,
- * Ex1: arrays, static functions and JUnit
- * https://docs.google.com/document/d/1GcNQht9rsVVSt153Y8pFPqXJVju56CY4/edit?usp=sharing&ouid=113711744349547563645&rtpof=true&sd=true
+ * Introduction to Computer Science 2026, Ariel University
+ * Ex1: Arrays, Static Functions and JUnit
  *
- * This class represents a set of static methods on a polynomial functions - represented as an array of doubles.
- * The array {0.1, 0, -3, 0.2} represents the following polynomial function: 0.2x^3-3x^2+0.1
- * This is the main Class you should implement (see "add your code below")
+ * This class implements a collection of static methods for working with
+ * polynomial functions represented as arrays of doubles.
  *
- * @author boaz.benmoshe
-
+ * A polynomial p(x) is represented by an array such that:
+ *   p[0] = constant term
+ *   p[1] = coefficient of x
+ *   p[2] = coefficient of x²
+ *   ...
+ *
+ * Example: the array {0.1, 0, -3, 0.2} represents
+ *      p(x) = 0.2x³ − 3x² + 0x + 0.1
+ *
+ * The class includes methods for:
+ *   - Evaluating a polynomial at a given x
+ *   - Adding, subtracting, and multiplying polynomials
+ *   - Computing derivatives
+ *   - Converting between arrays and string representations
+ *   - Numerical root finding
+ *   - Approximating area and curve length
+ *
+ * All functions are static and operate directly on polynomial arrays.
+ *
+ * Author: Maayan Cohen
  */
+
 public class Ex1 {
 	/** Epsilon value for numerical computation, it serves as a "close enough" threshold. */
 	public static final double EPS = 0.001; // the epsilon to be used for the root approximation.
