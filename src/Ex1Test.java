@@ -3,15 +3,25 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
- *  * Introduction to Computer Science 2026, Ariel University,
- *  * Ex1: arrays, static functions and JUnit
+ * This JUnit test class provides a comprehensive test suite for the Ex1 assignment.
+ * It evaluates correctness, robustness, edge-case handling and mathematical accuracy
+ * of all polynomial utility functions, including:
+ *   - Evaluation (f)
+ *   - Addition, subtraction, multiplication
+ *   - Derivative and normalization
+ *   - Polynomial parsing and string formatting
+ *   - Root finding, area computation and curve length
+ *   - Construction of polynomials from points
+ *   - EPS-based equality and null-input behavior
  *
- * This JUnit class represents a JUnit (unit testing) for Ex1-
- * It contains few testing functions for the polynomial functions as define in Ex1.
- * Note: you should add additional JUnit testing functions to this class.
+ * Over 70 tests cover normal cases, boundary conditions, invalid inputs,
+ * large numbers, reversed intervals, ZERO polynomial behavior, symmetry,
+ * and consistency checks between mathematical definitions.
  *
- * @author boaz.ben-moshe
+ * Each test verifies one well-defined property (unit testing),
+ * ensuring that any change in the implementation will immediately detect regressions.
  */
+
 
 class Ex1Test {
 	static final double[] P1 ={2,0,3, -1,0}, P2 = {0.1,0,1, 0.1,3};
@@ -201,7 +211,11 @@ class Ex1Test {
 		double area = 58.5658;
 		assertEquals(a1,area, Ex1.EPS);
 	}
-
+    /**
+     * Tests the derivative(double[]) function on a cubic polynomial.
+     * The test verifies that the derivative of [2,4,6,8] is correctly computed as [4,12,24],
+     * and uses equals() to confirm polynomial equality.
+     */
     @Test
     public void testDerivative() {
         double [] po = {2,4,6,8};
@@ -211,7 +225,12 @@ class Ex1Test {
             fail();
         }
     }
-
+    /**
+     * Tests the poly(double[]) and getPolynomFromString(String) functions together.
+     * The test converts a polynomial array to a string using poly(),
+     * then parses it back using getPolynomFromString(),
+     * and verifies that the reconstructed polynomial equals the original.
+     */
     @Test
     public void testPolyToString(){
         double [] po = {2.2,-4,6,8};
@@ -220,5 +239,406 @@ class Ex1Test {
         if(!Ex1.equals(test,po)){
             fail();
         }
+    }
+
+    @Test
+    public void test_f_null() {
+        assertThrows(NullPointerException.class, () -> Ex1.f(null, 5));
+    }
+    @Test
+    public void test_f_nan_inf() {
+        double[] p = {Double.NaN, 1};
+        assertTrue(Double.isNaN(Ex1.f(p, 2)));
+
+        double[] p2 = {Double.POSITIVE_INFINITY, 1};
+        assertTrue(Double.isInfinite(Ex1.f(p2, 1)));
+    }
+
+    @Test
+    public void testFSimpleConstant() {
+        double[] p = {5}; // f(x) = 5
+        assertEquals(5, Ex1.f(p, 10), Ex1.EPS);
+        assertEquals(5, Ex1.f(p, -3), Ex1.EPS);
+        assertEquals(5, Ex1.f(p, 0), Ex1.EPS);
+    }
+
+    @Test
+    public void testFLinear() {
+        double[] p = {2, 3}; // f(x) = 3x + 2
+        assertEquals(2, Ex1.f(p, 0), Ex1.EPS);
+        assertEquals(5, Ex1.f(p, 1), Ex1.EPS);
+        assertEquals(-1, Ex1.f(p, -1), Ex1.EPS);
+    }
+
+    @Test
+    public void testFQuadratic() {
+        double[] p = {1, -2, 1}; // f(x) = x^2 -2x + 1 = (x-1)^2
+        assertEquals(0, Ex1.f(p, 1), Ex1.EPS);
+        assertEquals(1, Ex1.f(p, 0), Ex1.EPS);
+        assertEquals(4, Ex1.f(p, 3), Ex1.EPS);
+    }
+
+    @Test
+    public void testFCubic() {
+        double[] p = {0, 1, 0, -2}; // f(x) = -2x^3 + x
+        assertEquals(0, Ex1.f(p, 0), Ex1.EPS);
+        assertEquals(-2 + 1, Ex1.f(p, 1), Ex1.EPS);
+        assertEquals(16 - 2, Ex1.f(p, -2), Ex1.EPS);
+    }
+
+    @Test
+    public void testFZeroPolynomial() {
+        double[] p = {0};
+        assertEquals(0, Ex1.f(p, 0), Ex1.EPS);
+        assertEquals(0, Ex1.f(p, 15), Ex1.EPS);
+        assertEquals(0, Ex1.f(p, -5), Ex1.EPS);
+    }
+
+    @Test
+    public void testFLargeX() {
+        double[] p = {1, 0, 1}; // f(x) = x^2 + 1
+        assertEquals(10001, Ex1.f(p, 100), Ex1.EPS);
+    }
+    @Test
+    public void test_polynomFrom2Points() {
+        double[] xx = {0, 1};
+        double[] yy = {2, 4}; // y = 2x + 2
+        double[] p = Ex1.PolynomFromPoints(xx, yy);
+
+        assertEquals(2, p[0], Ex1.EPS);
+        assertEquals(2, p[1], Ex1.EPS);
+    }
+
+    @Test
+    public void test_polynomFrom3Points_parabola() {
+        double[] xx = {0, 1, 2};
+        double[] yy = {1, 2, 5}; // y = x^2 + 1
+        double[] p = Ex1.PolynomFromPoints(xx, yy);
+
+        assertEquals(1, p[0], Ex1.EPS);
+        assertEquals(0, p[1], Ex1.EPS);
+        assertEquals(1, p[2], Ex1.EPS);
+    }
+
+    @Test
+    public void test_polynomFromPoints_invalid() {
+        double[] x = {1, 1};
+        double[] y = {2, 2};
+        assertNull(Ex1.PolynomFromPoints(x, y));
+    }
+    @Test
+    public void test_equals_identical() {
+        double[] p1 = {1, 2, 3};
+        double[] p2 = {1, 2, 3};
+        assertTrue(Ex1.equals(p1, p2));
+    }
+
+    @Test
+    public void test_equals_scaled_notEqual() {
+        double[] p1 = {1, 2, 3};
+        double[] p2 = {2, 4, 6};
+        assertFalse(Ex1.equals(p1, p2));
+    }
+    @Test
+    public void test_equals_differentSizesButEqual() {
+        assertTrue(Ex1.equals(new double[]{1,2,0,0}, new double[]{1,2}));
+    }
+
+    @Test
+    public void test_equals_withEPS() {
+        double[] p1 = {1, 2.0005};
+        double[] p2 = {1, 2.0004};
+        assertTrue(Ex1.equals(p1, p2));
+    }
+    @Test
+    public void test_poly_basic() {
+        double[] p = {2, 0, 3, -1.2};
+        String s = Ex1.poly(p);
+        assertEquals("-1.2x^3 +3.0x^2 +2.0", s);
+    }
+
+    @Test
+    public void test_poly_zero() {
+        assertEquals("", Ex1.poly(new double[]{0}));
+    }
+
+    @Test
+    public void test_poly_linear() {
+        assertEquals("2.0x +1.0", Ex1.poly(new double[]{1, 2}));
+    }
+    @Test
+    public void test_sameValue_linear() {
+        double[] p1 = {1,1};  // x + 1
+        double[] p2 = {3};    // 3
+        double x = Ex1.sameValue(p1, p2, -10, 10, Ex1.EPS);
+        assertEquals(2, x, 0.01);
+    }
+
+    @Test
+    public void test_sameValue_noSolution() {
+        double[] p1 = {1,1};
+        double[] p2 = {100};
+        assertEquals(-1, Ex1.sameValue(p1, p2, -2, 2, Ex1.EPS));
+    }
+    @Test
+    public void test_sameValue_noCrossing() {
+        double[] p1 = {5};
+        double[] p2 = {1};
+        assertEquals(-1, Ex1.sameValue(p1,p2,-10,10,Ex1.EPS));
+    }
+    @Test
+    public void test_sameValue_reverseRange() {
+        double[] p1 = {1,1}; // x+1
+        double[] p2 = {3};
+        double x = Ex1.sameValue(p1,p2,5,-5,Ex1.EPS);
+        assertEquals(2, x, 0.01);
+    }
+    @Test
+    public void test_length_zeroInterval() {
+        double[] p = {3,2};
+        assertEquals(0, Ex1.length(p, 5, 5, 5));
+    }
+    @Test
+    public void test_length_singleSegment() {
+        double[] p = {0,1}; // y=x
+        double len = Ex1.length(p, 0, 3, 1);
+        assertEquals(Math.sqrt(18), len, Ex1.EPS);
+    }
+
+
+    @Test
+    public void test_length_straightLine() {
+        double[] p = {0, 1}; // y = x
+        double len = Ex1.length(p, 0, 3, 1000);
+        assertEquals(Math.sqrt(2) * 3, len, Ex1.EPS);
+    }
+
+    @Test
+    public void test_length_flat() {
+        double[] p = {5};
+        assertEquals(3, Ex1.length(p, 0, 3, 10), Ex1.EPS);
+    }
+    @Test
+    public void test_area_zeroWidth() {
+        double[] p1 = {1};
+        double[] p2 = {3};
+        assertEquals(0, Ex1.area(p1, p2, 5,5,10));
+    }
+    @Test
+    public void test_area_sameFunction() {
+        double[] p = {1,2,3};
+        assertEquals(0, Ex1.area(p,p,-10,10,100));
+    }
+
+    @Test
+    public void test_area_simple() {
+        double[] p1 = {0};     // y = 0
+        double[] p2 = {2};     // y = 2
+        double a = Ex1.area(p1, p2, 0, 3, 1000);
+        assertEquals(6, a, Ex1.EPS);
+    }
+
+    @Test
+    public void test_area_crossing() {
+        double[] p1 = {0,1};    // y = x
+        double[] p2 = {2};      // y = 2
+        double a = Ex1.area(p1, p2, 0, 4, 2000);
+        assertTrue(a > 0);
+    }
+    @Test
+    public void test_string_basic() {
+        String s = "-1.2x^2 +3x +2";
+        double[] p = Ex1.getPolynomFromString(s);
+
+        assertEquals(2, p[0], Ex1.EPS);
+        assertEquals(3, p[1], Ex1.EPS);
+        assertEquals(-1.2, p[2], Ex1.EPS);
+    }
+
+    @Test
+    public void test_string_withSpaces() {
+        double[] p = Ex1.getPolynomFromString("  4x  - 2 ");
+        assertEquals(-2, p[0], Ex1.EPS);
+        assertEquals(4, p[1], Ex1.EPS);
+    }
+
+    @Test
+    public void test_string_zero() {
+        double[] p = Ex1.getPolynomFromString("0");
+        assertArrayEquals(new double[]{0}, p);
+    }
+    @Test
+    public void test_add_null() {
+        assertArrayEquals(Ex1.ZERO, Ex1.add(null, null));
+        assertArrayEquals(new double[]{1,2}, Ex1.add(new double[]{1,2}, null));
+        assertArrayEquals(new double[]{1,2}, Ex1.add(null, new double[]{1,2}));
+    }
+    @Test
+    public void test_add_negativeAndLarge() {
+        double[] p1 = {1000000, -5};
+        double[] p2 = {-1000000, 5};
+        assertArrayEquals(new double[]{0,0}, Ex1.add(p1,p2));
+    }
+
+    @Test
+    public void test_add() {
+        double[] p1 = {1,2};
+        double[] p2 = {3,4};
+        double[] r = Ex1.add(p1,p2);
+
+        assertArrayEquals(new double[]{4,6}, r);
+    }
+    @Test
+    public void test_add_diffSizes() {
+        double[] p1 = {1,2,3};
+        double[] p2 = {5};
+        double[] r = Ex1.add(p1,p2);
+
+        assertArrayEquals(new double[]{6,2,3}, r);
+    }
+
+    @Test
+    public void test_add_zero() {
+        double[] p1 = {1,2,3};
+        double[] p2 = Ex1.ZERO;
+
+        assertArrayEquals(p1, Ex1.add(p1,p2));
+    }
+
+    @Test
+    public void test_sub() {
+        double[] p1 = {5,4};
+        double[] p2 = {2,1};
+        double[] r = Ex1.sub(p1,p2);
+
+        assertArrayEquals(new double[]{3,3}, r);
+    }
+    @Test
+    public void test_sub_diffSizes() {
+        double[] p1 = {10,5,2};
+        double[] p2 = {3};
+        double[] r = Ex1.sub(p1,p2);
+
+        assertArrayEquals(new double[]{7,5,2}, r);
+    }
+
+    @Test
+    public void test_sub_zero() {
+        double[] p = {2,3,4};
+        assertArrayEquals(p, Ex1.sub(p, Ex1.ZERO));
+    }
+    @Test
+    public void test_sub_reverseZero() {
+        double[] p = {3,5};
+        assertArrayEquals(new double[]{-3,-5}, Ex1.sub(Ex1.ZERO, p));
+    }
+    @Test
+    public void test_mul_null() {
+        assertNull(Ex1.mul(null, new double[]{1}));
+        assertNull(Ex1.mul(new double[]{1}, null));
+    }
+    @Test
+    public void test_mul_largeDegree() {
+        double[] p1 = new double[100];
+        p1[99] = 1;  // x^99
+
+        double[] p2 = {1,1}; // x + 1
+
+        double[] r = Ex1.mul(p1, p2);
+
+        assertEquals(101, r.length);  // degrees 0..100
+
+        assertEquals(1, r[99]);   // x^99
+        assertEquals(1, r[100]);  // x^100
+    }
+
+
+    @Test
+    public void test_mul() {
+        double[] p1 = {1,1}; // x+1
+        double[] p2 = {1,1}; // x+1
+        double[] r = Ex1.mul(p1,p2); // x^2 +2x +1
+
+        assertArrayEquals(new double[]{1,2,1}, r);
+    }
+    @Test
+    public void test_mul_zero() {
+        double[] r = Ex1.mul(new double[]{3,2}, Ex1.ZERO);
+        assertArrayEquals(Ex1.ZERO, r);
+    }
+
+    @Test
+    public void test_mul_general() {
+        double[] p1 = {2,1};    // x + 2
+        double[] p2 = {3,4,5};  // 5x^2 + 4x + 3
+        double[] r = Ex1.mul(p1,p2);
+
+        assertArrayEquals(new double[]{6,11,14,5}, r);
+    }
+
+
+    @Test
+    public void test_derivative() {
+        double[] p = {1,2,3}; // 3x^2 +2x +1
+        double[] d = Ex1.derivative(p);
+        assertArrayEquals(new double[]{2,6}, d); // f' = 2 + 6x
+    }
+
+    @Test
+    public void test_derivative_constant() {
+        double[] p = {7};
+        assertArrayEquals(Ex1.ZERO, Ex1.derivative(p));
+    }
+    @Test
+    public void test_normalize_removeTrailingZeros() {
+        double[] p = {1,2,3,0,0};
+        assertArrayEquals(new double[]{1,2,3}, Ex1.normalize(p));
+    }
+
+    @Test
+    public void test_normalize_allZero() {
+        double[] p = {0,0,0};
+        assertArrayEquals(Ex1.ZERO, Ex1.normalize(p));
+    }
+    @Test
+    public void test_normalize_null() {
+        assertArrayEquals(Ex1.ZERO, Ex1.normalize(null));
+    }
+    @Test
+    public void test_normalize_manyZeros() {
+        double[] p = {5,0,0,0,0,0};
+        assertArrayEquals(new double[]{5}, Ex1.normalize(p));
+    }
+    @Test
+    public void test_findRootInSegment_noRoot() {
+        double[] h = {2,1}; // x+2 (תמיד חיובי בתחום חיובי)
+        assertEquals(-1, Ex1.findRootInSegment(h,0,5));
+    }
+
+    @Test
+    public void test_findRootInSegment() {
+        double[] h = {-1,1}; // x-1
+        assertEquals(1, Ex1.findRootInSegment(h,0,5), Ex1.EPS);
+    }
+    @Test
+    public void test_trapezoid_negative() {
+        assertEquals(5, Ex1.trapezoid(-2, -3, 2), Ex1.EPS); // | -2 | + | -3 |
+    }
+
+    @Test
+    public void test_trapezoid() {
+        assertEquals(5, Ex1.trapezoid(2,3,2), Ex1.EPS);
+    }
+    @Test
+    public void test_splitTrapezoid() {
+        double area = Ex1.splitTrapezoid(2, -3, 0, 5, 2);
+
+        double expected = 2 + 4.5; // total = 6.5
+
+        assertEquals(expected, area, Ex1.EPS);
+    }
+    @Test
+    public void test_splitTrapezoid_rootAtEdge() {
+        assertEquals(0, Ex1.splitTrapezoid(0,5,2,2,2), Ex1.EPS);
     }
 }

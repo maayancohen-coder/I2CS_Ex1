@@ -186,7 +186,9 @@ public class Ex1 {
      */
 	public static String poly(double[] poly) {
 		String ans = "";
-		if(poly.length==0) {ans="0";}
+		if(poly.length==0) {
+            ans="0";
+        }
 		else {
             poly = normalize(poly);
             double c;
@@ -242,7 +244,11 @@ public class Ex1 {
         if (p1 == null || p2 == null){
             return -1;
         }
-
+        if (x2 < x1) {
+            double t = x1;
+            x1 = x2;
+            x2 = t;
+        }
         double f1 = f(p1, x1) - f(p2, x1);
         double f2 = f(p1, x2) - f(p2, x2);
 
@@ -293,18 +299,39 @@ public class Ex1 {
      *     return ans
      */
 	public static double length(double[] p, double x1, double x2, int numberOfSegments) {
-		double ans = 0;
-        double dx = x2 - x1;
-        double delta = dx/numberOfSegments;
-        double fx1, fx2, dy, dd;
-        for (double t = x1; t <= x2; t += delta) {
-            fx1 = Ex1.f(p, t);
-            fx2 = Ex1.f(p, t+delta);
-            dy = fx2 - fx1;
-            dd = delta*delta + dy*dy ;
-            ans += Math.sqrt(dd);
+        if (p == null || numberOfSegments <= 0){
+            return 0;
         }
-		return ans;
+        if (x2 < x1) {
+            double t = x1;
+            x1 = x2;
+            x2 = t;
+        }
+
+        if (numberOfSegments == 1) {
+            double dx = x2 - x1;
+            double dy = f(p, x2) - f(p, x1);
+            return Math.sqrt(dx*dx + dy*dy);
+        }
+
+
+        double dx = (x2 - x1) / numberOfSegments;
+        double ans = 0;
+
+        for (int i = 0; i < numberOfSegments; i++) {
+
+            double xi = x1 + i * dx;
+            double xi1 = xi + dx;
+
+            double yi  = f(p, xi);
+            double yi1 = f(p, xi1);
+
+            double dy = yi1 - yi;
+
+            ans += Math.sqrt(dx*dx + dy*dy);
+        }
+
+        return ans;
 	}
 	
 	/**
@@ -387,7 +414,7 @@ public class Ex1 {
      *         return -1
      *     return root_rec(h, xl, xr, EPS)
      */
-    private static double findRootInSegment(double[] h, double xl, double xr) {
+    public static double findRootInSegment(double[] h, double xl, double xr) {
         double yl = f(h, xl);
         double yr = f(h, xr);
 
@@ -409,7 +436,7 @@ public class Ex1 {
      * Pseudo code:
      *     return (|y1| + |y2|) * dx / 2
      */
-    private static double trapezoid(double y1, double y2, double dx) {
+    public static double trapezoid(double y1, double y2, double dx) {
         return (Math.abs(y1) + Math.abs(y2)) * dx / 2.0;
     }
     /**
@@ -432,7 +459,7 @@ public class Ex1 {
      *     area2 = a2 * dx2 / 2
      *     return area1 + area2
      */
-    private static double splitTrapezoid(double yL, double yR, double xl, double xr, double root) {
+    public static double splitTrapezoid(double yL, double yR, double xl, double xr, double root) {
         double dx1 = root - xl;
         double dx2 = xr - root;
 
@@ -719,6 +746,13 @@ public class Ex1 {
 		double [] ans = ZERO;//
         if(p1 == null && p2 == null) {
             ans = ZERO;
+            return ans;
+        }
+        if (p1==null){
+            return normalize(p2);
+        }
+        if (p2==null){
+            return normalize(p1);
         }
         int maxLength = Math.max(p1.length,p2.length);
         int minLength = Math.min(p1.length,p2.length);
@@ -803,9 +837,9 @@ public class Ex1 {
      */
 	public static double[] derivative (double[] po) {
 		double [] ans;//
-        if (po.length==0 || po == null) {
+        if (po.length==0 || po == null || po.length==1) {
             ans=ZERO;
-        } else {
+        }else {
             ans = new double[po.length-1];
         }
         for (int i = 1 ; i < po.length ; i++) {
@@ -827,7 +861,7 @@ public class Ex1 {
      *     copy coefficients up to last index
      *     return new array
      */
-    private static double[] normalize(double[] p) {
+    public static double[] normalize(double[] p) {
         if (p == null || p.length == 0){
             return ZERO;
         }
