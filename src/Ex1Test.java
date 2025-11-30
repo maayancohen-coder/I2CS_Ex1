@@ -221,5 +221,4 @@ class Ex1Test {
             fail();
         }
     }
-
 }
